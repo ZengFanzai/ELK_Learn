@@ -5,6 +5,7 @@
 ### 安装jre环境
 
 #### (Oracle Jre)
+
 ```sh
 wget https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/server-jre-8u192-linux-x64.tar.gz?AuthParam=xxxxxx(根据需求修改,从html源码获取)
 ```
@@ -25,7 +26,7 @@ shasum -a 512 -c elasticsearch-6.4.3.deb.sha512
 sudo dpkg -i elasticsearch-6.4.3.deb
 ```
 
-### 查看系统使用的是init还是systemd
+### 查看系统使用的是`init`还是`systemd`
 
 ```sh
 ps -p 1
