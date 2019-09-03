@@ -10,7 +10,7 @@
     - [Skipping types](#skipping-types)
   - [删除索引](#%e5%88%a0%e9%99%a4%e7%b4%a2%e5%bc%95)
   - [获取索引](#%e8%8e%b7%e5%8f%96%e7%b4%a2%e5%bc%95)
-    - [跳过types](#%e8%b7%b3%e8%bf%87types)
+    - [跳过 types](#%e8%b7%b3%e8%bf%87-types)
   - [判断索引是否存在](#%e5%88%a4%e6%96%ad%e7%b4%a2%e5%bc%95%e6%98%af%e5%90%a6%e5%ad%98%e5%9c%a8)
   - [开/关索引](#%e5%bc%80%e5%85%b3%e7%b4%a2%e5%bc%95)
     - [等待活动的分片](#%e7%ad%89%e5%be%85%e6%b4%bb%e5%8a%a8%e7%9a%84%e5%88%86%e7%89%87)
@@ -20,6 +20,12 @@
     - [注意](#%e6%b3%a8%e6%84%8f)
     - [监控收缩处理](#%e7%9b%91%e6%8e%a7%e6%94%b6%e7%bc%a9%e5%a4%84%e7%90%86)
     - [等待活动分片](#%e7%ad%89%e5%be%85%e6%b4%bb%e5%8a%a8%e5%88%86%e7%89%87)
+  - [拆分索引](#%e6%8b%86%e5%88%86%e7%b4%a2%e5%bc%95)
+    - [拆分索引的工作原理](#%e6%8b%86%e5%88%86%e7%b4%a2%e5%bc%95%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86)
+    - [为什么 ES 不支持增量重新分片](#%e4%b8%ba%e4%bb%80%e4%b9%88-es-%e4%b8%8d%e6%94%af%e6%8c%81%e5%a2%9e%e9%87%8f%e9%87%8d%e6%96%b0%e5%88%86%e7%89%87)
+    - [拆分索引实例](#%e6%8b%86%e5%88%86%e7%b4%a2%e5%bc%95%e5%ae%9e%e4%be%8b)
+      - [准备一个用于拆分的索引](#%e5%87%86%e5%a4%87%e4%b8%80%e4%b8%aa%e7%94%a8%e4%ba%8e%e6%8b%86%e5%88%86%e7%9a%84%e7%b4%a2%e5%bc%95)
+      - [拆分该索引](#%e6%8b%86%e5%88%86%e8%af%a5%e7%b4%a2%e5%bc%95)
 
 ## 创建索引
 
@@ -205,12 +211,12 @@ resp=>
 为了禁止允许`通过通配符(*)`或`_all`删除索引为了禁用，将`config`中的`action.destructive_requires_name`设置为`true`。也可以通过`集群更新设置api`更改此设置。
 
 ```json
-DELETE /twitter
+DELETE / twitter
 ```
 
 ## 获取索引
 
-get index API允许检索有关一个或多个索引的信息，也可以通过使用`_all`或`*`作为索引应用于多个索引或所有索引，可以用`逗号分隔符(*)`。
+get index API 允许检索有关一个或多个索引的信息，也可以通过使用`_all`或`*`作为索引应用于多个索引或所有索引，可以用`逗号分隔符(*)`。
 
 ```json
 GET /twitter
@@ -218,9 +224,9 @@ GET test1,test2
 GET test*
 ```
 
-### 跳过types
+### 跳过 types
 
-在7.0中已经删除`Types`。默认情况下，`mapping`元素将不再将类型名称作为顶级键返回。您可以通过在请求上设置include_type_name = false来选择加入此行为。
+在 7.0 中已经删除`Types`。默认情况下，`mapping`元素将不再将类型名称作为顶级键返回。您可以通过在请求上设置 include_type_name = false 来选择加入此行为。
 
 ```json
 GET test1?include_type_name=false
@@ -283,8 +289,8 @@ resp=>
 
 ## 判断索引是否存在
 
-404表示它不存在，200表示它存在。
-该请求不区分索引和别名，即如果存在具有该名称的别名，则还返回状态代码200。
+404 表示它不存在，200 表示它存在。
+该请求不区分索引和别名，即如果存在具有该名称的别名，则还返回状态代码 200。
 
 ```json
 HEAD twitter
@@ -294,11 +300,11 @@ resp=>
 
 ## 开/关索引
 
-请求格式：/{index}/_close 和 /{index}/_open。
+请求格式：/{index}/\_close 和 /{index}/\_open。
 
 可以打开和关闭多个索引。如果请求显式引用缺少的索引，则会引发错误。可以使用`ignore_unavailable = true`参数禁用此行为。支持`通配符`和`_all`，`action.destructive_requires_name=true`来禁用此项
 
-`close`索引占用大量磁盘空间，这可能会导致托管环境出现问题。通过将`cluster.indices.close.enable`设置为`false`，可以通过集群设置API禁用`close`索引。默认值为`true`。
+`close`索引占用大量磁盘空间，这可能会导致托管环境出现问题。通过将`cluster.indices.close.enable`设置为`false`，可以通过集群设置 API 禁用`close`索引。默认值为`true`。
 
 ```json
 POST /my_index/_close
@@ -307,11 +313,11 @@ POST /my_index/_open
 
 ### 等待活动的分片
 
-因为打开索引分配了它的分片，所以在创建索引时设置wait_for_active_shards也适用于索引打开操作。open index API上的wait_for_active_shards设置的默认值是0，这意味着命令不会等待分配shards。
+因为打开索引分配了它的分片，所以在创建索引时设置 wait_for_active_shards 也适用于索引打开操作。open index API 上的 wait_for_active_shards 设置的默认值是 0，这意味着命令不会等待分配 shards。
 
 ## 收缩索引
 
-收缩索引(shrink index)API 允许将现有索引缩减为具有较少主分片的新索引，目标索引中请求的主分片数必须是源索引中分片数的一个因子。 例如，具有8个主分片的索引可以缩小为4个，2个或1个主分片，或者具有15个主分片的索引可以缩小为5个，3个或1个。如果索引中的分片数是素数，它可以只能缩小为一个主要分片。 在收缩之前，索引中每个分片的（主要或副本）副本必须存在于同一节点上。
+收缩索引(shrink index)API 允许将现有索引缩减为具有较少主分片的新索引，目标索引中请求的主分片数必须是源索引中分片数的一个因子。 例如，具有 8 个主分片的索引可以缩小为 4 个，2 个或 1 个主分片，或者具有 15 个主分片的索引可以缩小为 5 个，3 个或 1 个。如果索引中的分片数是素数，它可以只能缩小为一个主要分片。 在收缩之前，索引中每个分片的（主要或副本）副本必须存在于同一节点上。
 
 工作原理如下：
 
@@ -334,7 +340,7 @@ PUT /my_source_index/_settings
 - 强制将每个分片的副本重定向到名为`shink_node_name`的节点，有关更多选项参考**[Shard Allocation Filtering](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/shard-allocation-filtering.html)**
 - 阻止对此索引的写入操作，同时仍允许更改元数据，如删除索引
 
-重新迁移源索引可以需要一段时间。可以使用`_cat recovery` API，或者可以使用`cluster health` API通过`wait_for_no_relocating_shards`参数等待所有分片都迁移成功
+重新迁移源索引可以需要一段时间。可以使用`_cat recovery` API，或者可以使用`cluster health` API 通过`wait_for_no_relocating_shards`参数等待所有分片都迁移成功
 
 ### 收缩一个索引
 
@@ -362,10 +368,10 @@ POST my_source_index/_shrink/my_target_index?copy_settings=true
 - 目标索引不得存在
 - 索引必须具有比目标索引更多的主分片
 - 目标索引中的主分片数必须是源索引中主分片数的一个因子(两数相乘)
-- 索引在所有分片上的的文档总数不能超过2,147,483,519个，因为当缩小为目标索引的单个分片时，这是可放入单个分片的最大文档数
+- 索引在所有分片上的的文档总数不能超过 2,147,483,519 个，因为当缩小为目标索引的单个分片时，这是可放入单个分片的最大文档数
 - 处理收缩过程的节点必须具有足够的可用磁盘空间，以容纳现有索引的第二个副本
 
-`_shrink`API和`create index`API相似并且接受`settings`和`aliases`参数
+`_shrink`API 和`create index`API 相似并且接受`settings`和`aliases`参数
 
 ```json
 POST my_source_index/_shrink/my_target_index?copy_settings=true
@@ -384,7 +390,7 @@ POST my_source_index/_shrink/my_target_index?copy_settings=true
 - `index.number_of_shards`表示目标索引的分片数。这必须是源索引分片数的一个因子
 - `index.codec: best_compression`：最佳压缩仅在对索引进行新写入时生效，例如当[force_meging(强制合并)](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-forcemerge.html)分片到单个片段
 
-**注意：**默认情况下，除index.analysis，index.similarity和index.sort设置外，源索引上的索引设置不会在收缩操作期间复制。 除了不可复制的设置之外，可以通过将URL参数`copy_settings = true`添加到请求来将源索引中的设置复制到目标索引。 请注意，`copy_settings`不能设置为`false`。 参数copy_settings将在8.0.0中删除
+**注意：**默认情况下，除 index.analysis，index.similarity 和 index.sort 设置外，源索引上的索引设置不会在收缩操作期间复制。 除了不可复制的设置之外，可以通过将 URL 参数`copy_settings = true`添加到请求来将源索引中的设置复制到目标索引。 请注意，`copy_settings`不能设置为`false`。 参数 copy_settings 将在 8.0.0 中删除
 
 ```json
 POST my_source_index/_shrink/my_target_index?copy_settings=false
@@ -413,12 +419,104 @@ resp=>
 
 ### 监控收缩处理
 
-可以使用`_cat recovery`API监视收缩过程，或者可以使用`cluster health`API等待，直到通过将`wait_for_status`参数设置为黄色来分配所有主分片。
+可以使用`_cat recovery`API 监视收缩过程，或者可以使用`cluster health`API 等待，直到通过将`wait_for_status`参数设置为黄色来分配所有主分片。
 
-在分配任何分片之前，只要目标索引已添加到群集状态，`_shrink`API就会返回。 此时，所有分片都处于未分配的状态。 如果由于任何原因无法在收缩节点上分配目标索引，则其主分片将保持未分配状态，直到可以在该节点上分配为止。
+在分配任何分片之前，只要目标索引已添加到群集状态，`_shrink`API 就会返回。 此时，所有分片都处于未分配的状态。 如果由于任何原因无法在收缩节点上分配目标索引，则其主分片将保持未分配状态，直到可以在该节点上分配为止。
 
-一旦分配了主分片，它就会转到状态`初始化`，并开始缩小过程。 收缩操作完成后，分片将变为`活动`状态。 此时，Elasticsearch将尝试分配任何副本，并可能决定将主分片重定位到另一个节点。
+一旦分配了主分片，它就会转到状态`初始化`，并开始缩小过程。 收缩操作完成后，分片将变为`活动`状态。 此时，Elasticsearch 将尝试分配任何副本，并可能决定将主分片重定位到另一个节点。
 
 ### 等待活动分片
 
 由于收缩操作会创建一个新的索引来缩小分片，因此在索引创建时[wait for active shards](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/indices-create-index.html#create-index-wait-for-active-shards)设置也适用于缩减索引操作。
+
+## 拆分索引
+
+拆分索引 API 允许将现有索引拆分为新索引，其中每个源主分片被拆分为两个或多个主分片
+
+<img src="../images/attention.png" alt="attention" width=35 height=35/>`_split` API 要求使用特定的 number_of_routing_shards 创建源索引，以便将来拆分。此要求已在 Elasticsearch7.0 删除
+
+可以拆分索引的次数(以及每个原始分片可以拆分成的分片数)由`index.number_of_routing_shards`设置确定。路由分片的数量指定内部使用的散列空间，以便在具有一致散列的分片中分发文档。例如，`number_of_routing_shards`设置 30(5x2x3)的 5 个分片索引可以按因子 2 或 3 分割。
+
+- `5 -> 10 -> 30` (先以 2 拆分，然后以 3 拆分)
+- `5 -> 15 -> 30` (先以 3 拆分，然后以 2 才分)
+- `5 -> 30` (以 6 拆分)
+
+### 拆分索引的工作原理
+
+- 首先，创建一个与源索引相同定义的新的目标索引，但主分片比源索引更多
+- 然后，将源索引的片段硬链接到目标索引。（如果文件系统不支持硬链接，则会将所有段复制到新索引中，这是一个更耗时的过程）
+- 创建低级文件后，将再次对所有文档进行哈希处理，以删除属于不同分片的文档
+- 最后，恢复目标索引，类似于一个刚刚重新打开的封闭索引
+
+### 为什么 ES 不支持增量重新分片
+
+增量重新分片(`N->N+1`)，添加新分片并将新数据推送到新分片，这可能带来性能瓶颈，并且在给定其`_id`(这是`get`，`delete`，`update`所必须的)是，确定文档属于哪个分片会变得非常复杂。这意味着我们需要使用不同的散列方案重新平衡现有数据
+
+键值存储最有效地实现此目的的方法是使用一致的 HASH 散列。当从`N`增加到`N+1`，一致 HASH 只需要重新定位键的`1/N`。不过 ES 的`存储单元`,`分片`是 Lucene 索引。由于采用面向搜索的数据结构，占据了 Lucene 索引的很大一部分，只有 5%的文档，删除它们并在另一个分片上索引它们通常会比使用键值存储的成本高很多。通过乘法因子增加分片数量时，此成本保持合理，如上一节所述：这允许 Elasticsearch 在本地执行拆分，从而允许在索引级别执行拆分，而不是重新索引需要移动的文档，以及使用硬链接进行有效的文件复制。
+
+在仅附加数据的情况下，可以通过创建新索引并向其推送新数据来获得更大的灵活性，同时添加用于覆盖读取操作的旧索引和新索引的别名。假设旧索引和新索引分别具有 M 和 N 个分片，与搜索具有 M+N 个分片的索引相比，这个没有开销
+
+### 拆分索引实例
+
+#### 准备一个用于拆分的索引
+
+```json
+PUT my_source_index
+{
+  "setting": {
+    "index.number_of_shards": 1,
+    "index.number_of_routing_shards": 2
+  }
+}
+```
+
+`"index.number_of_routing_shards": 2`允许将索引拆分为两个分片，换句话说，它允许单个分割操作
+
+为了拆分索引，必须将其标记为`只读`，并且索引状态应为`green`
+
+```json
+PUT /my_source_index/_settings
+{
+  "settings": {
+    "index.blocks.write": true
+  }
+}
+```
+
+`"index.blocks.write": true`阻止对此索引的写入操作，同时仍允许更改元数据，如删除索引。
+
+#### 拆分该索引
+
+```json
+POST my_source_index/_split/my_target_index?copy_settings=true
+{
+  "settings": {
+    "index.number_of_shards": 2
+  }
+}
+```
+
+将目标索引添加到群集状态后，上述请求会立即返回——它不会等待分割操作开始。
+
+<img src="../images/attention.png" alt="attention" width=35 height=35/>索引只有满足以下要求才能拆分：
+
+- 目标索引不存在
+- 源索引的分片数必须比目标索引少
+- 目标索引中的主分片数必须是源索引中主分片数的一个因子
+- 处理拆分进程的节点必须具有足够的可用磁盘空间，以容纳现有索引的第二个副本。
+
+`_split API`类似于`create index API`，并接受目标索引的设置和别名参数：
+
+```json
+POST my_source_index/_split/my_target_index?copy_settings=true
+{
+  "settings": {
+    "index.number_of_shards": 5
+  },
+  "aliases": {
+    "my_search_indices": {}
+  }
+}
+```
+
+其他相关内容如`监控拆分过程`, `等待活动分片`和`收缩分片`相同
